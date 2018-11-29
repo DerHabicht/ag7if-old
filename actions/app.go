@@ -53,7 +53,8 @@ func App() *buffalo.App {
 		app.GET("/", HomeHandler)
 
 		api := app.Group("/api")
-		api.GET("/adds", ADDSGet)
+		api.GET("/adds/metar", ADDSMETARGet)
+		api.GET("/adds/taf", ADDSTAFGet)
 		api.GET("/usno", USNOGet)
 		api.GET("/forecast", ForecastGet)
 	}
