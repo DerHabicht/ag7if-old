@@ -2,18 +2,18 @@ package actions
 
 import (
 	"encoding/json"
-	"io"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/buffalo/render"
 )
 
 type forecastZone struct {
 	Features []struct {
 		Properties struct {
-			ID string `json:"id"`
+			ID    string `json:"id"`
+			Name  string `json:"name"`
+			State string `json:"state"`
 		} `json:"properties"`
 	} `json:"features"`
 }
@@ -55,11 +55,11 @@ func ForecastGet(c buffalo.Context) error {
 	if err != nil {
 		c.Logger().Errorf("Error on read of body: %s", err)
 	}
+	var forecast map[string]interface{}
+	err = json.Unmarshal(body, &forecast)
 
-	return c.Render(http.StatusOK,
-		r.Func("application/json", func(w io.Writer, d render.Data) error {
-			_, err := w.Write(body)
-			return err
-		}),
-	)
+	// Tack the zone information onto the end of the response object
+	forecast["zone"] = lr.Features[0].Properties
+
+	return c.Render(http.StatusOK, r.JSON(forecast))
 }
